@@ -1,0 +1,29 @@
+[project]
+name = "skelton-registration-mac-dev03"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Eguchi-Ryo", email = "e9uch1ry0@gmail.com" }
+]
+dependencies = [
+    "open3d>=0.18.0",
+    "imageio>=2.34.2",
+    "opencv-python>=4.10.0.84",
+    "simpleitk>=2.3.1",
+]
+readme = "README.md"
+requires-python = ">= 3.11"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/skelton_registration_mac_dev03"]

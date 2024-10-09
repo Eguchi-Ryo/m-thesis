@@ -1,0 +1,44 @@
+// ******** Image Types
+(FixedInternalImagePixelType "float")
+(FixedImageDimension 2)
+(MovingInternalImagePixelType "float")
+(MovingImageDimension 2)
+(UseDirectionCosines "true")
+
+// ******** Components
+(Registration "MultiResolutionRegistration")
+(FixedImagePyramid "FixedSmoothingImagePyramid")
+(MovingImagePyramid "MovingSmoothingImagePyramid")
+(Interpolator "BSplineInterpolator")
+(Metric "AdvancedMattesMutualInformation")
+(Optimizer "AdaptiveStochasticGradientDescent")
+(ResampleInterpolator "FinalBSplineInterpolator")
+(Resampler "DefaultResampler")
+(Transform "BSplineTransform")
+
+// ******** Pyramid
+(NumberOfResolutions 2)
+(ImagePyramidSchedule 64 64  8 8 )
+
+// ******** Transform
+(FinalGridSpacingInPhysicalUnits 16.0 16.0)
+(GridSpacingSchedule 64.0 64.0 8.0 8.0 )
+(FinalBSplineInterpolationOrder 3)
+
+// ******** Metric
+(NumberOfHistogramBins 32)
+
+// ******** Optimizer
+(MaximumNumberOfIterations 2000)
+
+// ******** ImageSampler
+(ImageSampler "RandomCoordinate")
+(NumberOfSpatialSamples 100)
+(NewSamplesEveryIteration "true")
+(UseRandomSampleRegion "false")
+
+// ******** Masks
+(ErodeFixedMask "true")
+(ErodeMovingMask "true")
+
+

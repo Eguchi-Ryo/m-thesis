@@ -1,0 +1,20 @@
+
+
+Bin/membrane: Obj/main.o Obj/Grid.o Obj/Particle_Cloud.o Obj/Particle.o Obj/Grid_Point.o
+	g++ -O3 -o Bin/membrane Obj/main.o Obj/Grid.o Obj/Particle.o Obj/Particle_Cloud.o Obj/Grid_Point.o -lGL -lGLU -lglut -w -Xpreprocessor -fopenmp `pkg-config --cflags --libs opencv4` -I/opt/homebrew/opt/opencv@4/include/opencv4 -L/opt/homebrew/opt/opencv@4/lib -std=c++17 
+Obj/main.o: main.cpp
+	g++ -O3 -o Obj/main.o -c main.cpp -w `pkg-config --cflags --libs opencv4` -std=c++17 -I/opt/homebrew/opt/opencv@4/include/opencv4 -L/opt/homebrew/opt/opencv@4/lib -lstdc++fs $(CVER) 
+
+Obj/Grid.o: Source/Grid.cpp
+	g++ -O3 -o Obj/Grid.o -c Source/Grid.cpp -w `pkg-config --cflags --libs opencv4` -I/opt/homebrew/opt/opencv@4/include/opencv4 -L/opt/homebrew/opt/opencv@4/lib -std=c++17 $(CVER) 
+
+Obj/Grid_Point.o: Source/Grid_Point.cpp
+	g++ -O3 -o Obj/Grid_Point.o -c Source/Grid_Point.cpp -w -std=c++17 $(CVER) 
+Obj/Particle.o: Source/Particle.cpp
+	g++ -O3 -o Obj/Particle.o -c Source/Particle.cpp -w -std=c++17 $(CVER) 
+Obj/Particle_Cloud.o: Source/Particle_Cloud.cpp
+	g++ -O3 -o Obj/Particle_Cloud.o -c Source/Particle_Cloud.cpp -w -std=c++17 $(CVER) 
+clean:
+	rm -f Obj/* Bin/membrane
+
+
