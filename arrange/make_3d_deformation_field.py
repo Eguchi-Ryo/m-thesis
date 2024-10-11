@@ -9,9 +9,9 @@ from PIL import Image
 import shutil
 
 #####select cross-section to make skelton############  
-axial_plane = 76  #zの位置を指定（体の高さ方向の位置）
-sagittal_plane = 200 #xの位置を指定（体の左右方向の位置）
-coronal_plane = 180 #yの位置を指定（体の奥行き方向の位置）
+axial_plane = 106  #zの位置を指定（体の高さ方向の位置）
+sagittal_plane = 170 #xの位置を指定（体の左右方向の位置）
+coronal_plane = 210 #yの位置を指定（体の奥行き方向の位置）
 ######################
 
 ###elastix path ###
@@ -231,15 +231,12 @@ def make_deformation_field(cs, wd):
     subprocess.run(tr_cmd, check=True)
 
 def load_nrrd(file_path):
-    """Load a NRRD file and return the image."""
     return sitk.ReadImage(file_path)
 
 def save_nrrd(image, file_path):
-    """Save an image as a NRRD file."""
     sitk.WriteImage(image, file_path)
 
 def calculate_dice_score(image1, image2):
-    """Calculate the Dice score between two images."""
     array1 = sitk.GetArrayFromImage(image1) > 0
     array2 = sitk.GetArrayFromImage(image2) > 0
     
@@ -333,6 +330,7 @@ def adopt_3D_deformation_field(before_image_path, wd):
     print(f"Displacement Field Direction: {df3d.GetDirection()}")
     print(f"Displacement Field Spacing: {df3d.GetSpacing()}")
     print(f"Displacement Field Origin: {df3d.GetOrigin()}")
+    print(f"Displacement Field shape: {df3d.GetSize()}")
 
     
     resampler = sitk.ResampleImageFilter()
@@ -377,6 +375,8 @@ if __name__ == '__main__':
     fixed_image_path = os.path.join(working_dir, "ans_data", "3d_object_stack.nrrd")#"/home/ec2-user/Desktop/3d_skelton/patient1/day2/3d_object_stack.nrrd"
     moving_image_path = os.path.join(working_dir, "image", "3d_object_stack.nrrd")#"/home/ec2-user/Desktop/3d_skelton/patient1/day1/3d_object_stack.nrrd"
     fixed_image = load_nrrd(fixed_image_path)
+    print("fx image(initialize) origin: "+str(fixed_image.GetOrigin()))
+    print("fx image(initialize) direction: "+str(fixed_image.GetDirection()))
     moving_image = load_nrrd(moving_image_path)
     #print("3d voxel size: " + str(fixed_image.GetSize()))  #<- (576, 576, 233)
     

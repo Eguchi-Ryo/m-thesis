@@ -29,19 +29,35 @@ def plot_stack(stack, sample_size):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     
-    # Get indices of non-zero voxels
+    # 非ゼロボクセルのインデックスを取得
     non_zero_indices = np.argwhere(stack[..., 0] + stack[..., 1] + stack[..., 2] > 0)
     
-    # Randomly sample the indices if there are more than sample_size points
+    # サンプルサイズ以上のポイントがある場合はランダムサンプル
     if len(non_zero_indices) > sample_size:
         sampled_indices = non_zero_indices[np.random.choice(non_zero_indices.shape[0], sample_size, replace=False)]
     else:
         sampled_indices = non_zero_indices
     
-    x, y, z = sampled_indices[:, 2], sampled_indices[:, 1], sampled_indices[:, 0]
-    colors = stack[z, y, x] / 255.0  # Normalize RGB values
+    # x, y, zの座標を取得（xとyを入れ替え）
+    y, x, z = sampled_indices[:, 0], sampled_indices[:, 1], sampled_indices[:, 2]  # xとyを入れ替え
+    colors = stack[y, x, z] / 255.0  # RGB値を正規化
     
+    # スキャッタープロット
     ax.scatter(x, y, z, c=colors, marker='o', s=2)
+    
+    # 原点のプロット（赤い大きな点）
+    ax.scatter(0, 0, 0, c='red', marker='o', s=100, label="Origin")
+    
+    # X, Y, Z軸方向の矢印をプロット
+    arrow_length = max(stack.shape) // 10  # 矢印の長さを適切に設定
+    ax.quiver(0, 0, 0, arrow_length, 0, 0, color='r', linewidth=1.5, arrow_length_ratio=0.2)
+    ax.quiver(0, 0, 0, 0, arrow_length, 0, color='g', linewidth=1.5, arrow_length_ratio=0.2)
+    ax.quiver(0, 0, 0, 0, 0, arrow_length, color='b', linewidth=1.5, arrow_length_ratio=0.2)
+    
+    # ラベル付け
+    ax.text(arrow_length, 0, 0, 'X', color='red', fontsize=12)
+    ax.text(0, arrow_length, 0, 'Y', color='green', fontsize=12)
+    ax.text(0, 0, arrow_length, 'Z', color='blue', fontsize=12)
     
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -53,14 +69,18 @@ def plot_stack(stack, sample_size):
     ax.set_xticklabels([])
     ax.set_yticklabels([])
     ax.set_zticklabels([])
+    
+    # 凡例を追加して原点を示す
+    ax.legend()
+    
     plt.show()
 
 
 
 # フォルダパスを指定してください
-folder1 = '/Users/lelab/Downloads/exam/patient2/answer/Pancreas'
+folder1 = '/Users/lelab/Downloads/exam/patient2/ans_data'
 #folder2 = '/Users/lelab/Downloads/exam/patient1/image'
-folder2 = '/Users/lelab/Downloads/exam/patient1/simulation/0110/all/max_tiff_img/Estimation/Pancreas'
+folder2 = '/Users/lelab/Downloads/exam/patient2/image'
 
 stack1 = load_stack(folder1)
 stack2 = load_stack(folder2)

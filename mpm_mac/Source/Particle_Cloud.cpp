@@ -14,7 +14,7 @@ void Particle_Cloud::Draw(){
     glPointSize(4);
     glBegin(GL_POINTS);
     cout << "number of points: " << points.size() << endl;
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i = 0; i < points.size(); i++){
         //膵臓：青
         //胃：赤

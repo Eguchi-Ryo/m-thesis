@@ -615,10 +615,10 @@ double calc_dice(vector<cv::Mat1w> img1, vector<cv::Mat1w> img2, string title){
      for (int k = 0; k < img1.size(); k++){
         for(int i = 0; i < img1[k].cols; i++){
             for(int j = 0; j < img1[k].rows; j++){
-                if (img1[k].at<unsigned short>(j,i)!= 0 && img2[k].at<unsigned short>(j,i) != 0){
+                if (img1[k].at<unsigned short>(img1[k].rows-1 -j,i)!= 0 && img2[k].at<unsigned short>(j,i) != 0){
                     same_region++;
                 }
-                if(img1[k].at<unsigned short>(j,i) != 0 || img2[k].at<unsigned short>(j,i) != 0){
+                if(img1[k].at<unsigned short>(img1[k].rows-1 -j,i) != 0 || img2[k].at<unsigned short>(j,i) != 0){
                     all_region++;
                 }
             }
@@ -1218,9 +1218,9 @@ void Render(){
     //glOrtho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
     gluPerspective(30.0, (double)VIEW_WIDTH / (double)VIEW_HEIGHT, 1.0, 100.0);
     //gluLookAt(camera_x + 2, camera_y-5.5, camera_z - 2.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-    gluLookAt(camera_x + 2, -(camera_y-8.5), camera_z - 2.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+    //gluLookAt(camera_x + 2, -(camera_y-8.5), camera_z - 2.5, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
     //gluLookAt(camera_x, camera_y, camera_z, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-    //gluLookAt(0.5, 0.5, 5, 0.5, 0.5, 0.5, 0.0, 1.0, 0.0);
+    gluLookAt(0.5, 0.5, 5, 0.5, 0.5, 0.5, 0.0, 1.0, 0.0);
     //gluLookAt(5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 1.0);
     
     //物体を描画
@@ -1410,9 +1410,11 @@ void InitMPM(){
                             }
                                 
                             if (i == cs_x || label_target[n][k].rows - j == cs_y || k == cs_z){
-                                tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * (label_target[n][k].rows - j),img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
+                                //tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * (label_target[n][k].rows - j),img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
+                                tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * j, img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
                             }else{
-                                tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * (label_target[n][k].rows - j),img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
+                                //tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * (label_target[n][k].rows - j),img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
+                                tmp_object = Particle(Vector3d(img_ratio[0] * i, img_ratio[1] * j, img_ratio[2] * k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1, true);
                             }
                             
                             //tmp_object = Particle(Vector3d(i, (label_target[n][k].rows - j), k), vel, 1, 1, (n+1), organ_type,img_target[k].at<unsigned short>(j,i),k+1);
@@ -1749,19 +1751,19 @@ int main(int argc, char** argv){
     all_time_start = clock();
 
     //GLにより表示しない場合はここをコメントアウト
-    
+    /*
     while(1){
         Update();
     }
+    */
     //本当はここに　}
     //メインループ
     //描画(glutDisplayFunc ~ glutMainLoop) //InitGLも描画に必要 UpdateのglutPostRedisplayも
-    /*
     glutDisplayFunc(Render);
     cout << "render :" << endl;
     glutIdleFunc(Update);
     glutMainLoop();
-    */
+    
 
     //delete fix;
     terminate_program();

@@ -115,109 +115,68 @@ Grid::Grid(Vector3d Start, Vector3d End, Vector3i Size, Particle_Cloud* Object){
 //arrayの１ボクセルに対する処理
 std::array<double, 3> adjustCoordinateSystem(const std::array<double, 3>& displacement) {
     // 左手系から右手系への変換
-	return { -displacement[0], displacement[1], displacement[2] };
+	return { -displacement[0], -displacement[1], displacement[2] };
     //return { displacement[0], displacement[1], displacement[2] };  //patient, (A,S,C)=(96, 200, 180)の時完全一致
 }
 
 void Grid::Make_Target_Position(){
     VectorXd vec = VectorXd::Zero(4);
     VectorXd new_vec = VectorXd::Zero(4);
-	VectorXd tar_SimSpace = VectorXd::Zero(4);
-	string DF_RawFile = deformationField_3D;
-    // データのサイズ情報
+    VectorXd tar_SimSpace = VectorXd::Zero(4);
+    string DF_RawFile = deformationField_3D;
     int width = image_size[0];
     int height = image_size[1];
     int depth = image_size[2];
 
-	/*
+    // データ構造の再確認
     std::vector<std::vector<std::vector<std::array<double, 3>>>> deformationField(
         depth, std::vector<std::vector<std::array<double, 3>>>(
             height, std::vector<std::array<double, 3>>(width)));
-	*/
-    std::vector<std::vector<std::vector<std::array<double, 3>>>> deformationField(
-        width, std::vector<std::vector<std::array<double, 3>>>(
-            height, std::vector<std::array<double, 3>>(depth)));
 
-    // RAWバイナリファイルを読み込む
     std::ifstream file(DF_RawFile, std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file!" << std::endl;
         return;
     }
 
-    // ファイルからデータを3次元配列に読み込む
-	//cppはrow-major orderであることに留意
+    // データの読み込み
     for (int z = 0; z < depth; ++z) {
-	//for (int z = depth - 1; z >= 0; --z) {
-		//for (int y = height - 1; y >= 0; --y) { 
-		for (int y = 0; y < height; ++y) {
-		//for (int x = 0; x < width; ++x) { 
-			for (int x =0; x < width; ++x) {
-				std::array<double, 3> displacement;
-	
-				file.read(reinterpret_cast<char*>(&displacement), sizeof(double) * 3);
-				//deformationField[depth -1 -z][height -1 -y][x] = adjustCoordinateSystem(displacement);  
-				deformationField[x][height -1 -y][z] = adjustCoordinateSystem(displacement); 
-				
-			}
-		}
-	}
-
-
-
-    auto displacement2 = deformationField[depth -1 -66][height -1 -244][283];
-    std::cout << "Displacement at [66, 244, 283], (dx,dy,dz)= (" 
-              << displacement2[0] << ", " 
-              << displacement2[1] << ", " 
-              << displacement2[2] << ")" << std::endl;
-
-    auto displacement3 = deformationField[232][0][0];
-    std::cout << "Displacement at [233, 0, 0], (dx,dy,dz)= (" 
-              << displacement3[0] << ", " 
-              << displacement3[1] << ", " 
-              << displacement3[2] << ")" << std::endl;
-	
-	
-	std::cout << "displacement size " << deformationField.size() << endl;
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+                std::array<double, 3> displacement;
+                file.read(reinterpret_cast<char*>(&displacement), sizeof(double) * 3);
+                deformationField[z][y][x] = adjustCoordinateSystem(displacement);
+            }
+        }
+    }
 
     file.close();
-	cout << "complete reading deformationField file" << endl;
 
-    for(int p = 0; p < Material->points.size(); p++){
+	auto displacement2 = deformationField[depth -1 -66][height -1 -244][283];
+	std::cout << "Displacement at [66, 244, 283], (dx,dy,dz)= (" 
+			<< displacement2[0] << ", " 
+			<< displacement2[1] << ", " 
+			<< displacement2[2] << ")" << std::endl;
+
+    // 変位の適用と粒子の位置更新
+    for (int p = 0; p < Material->points.size(); p++) {
         Particle& P = Material->points[p];
-		P.force_tag = 1;
+        int pos_x = static_cast<int>(P.position[0] / img_ratio[0]);
+        int pos_y = static_cast<int>(P.position[1] / img_ratio[1]);
+        int pos_z = static_cast<int>(P.position[2] / img_ratio[2]);
 
-		int pos_x = P.position[0] / img_ratio[0];
-		int pos_y = P.position[1] / img_ratio[1];
-		int pos_z = P.position[2] / img_ratio[2];
+        std::array<double, 3> disp = deformationField[pos_z][pos_y][pos_x];
+        float dx_sim = disp[0] * img_ratio[0];
+        float dy_sim = disp[1] * img_ratio[1];
+        float dz_sim = disp[2] * img_ratio[2];
 
-        vec(0) = P.position[0] / img_ratio[0] * pixel_spacing[0];  
-        vec(1) = P.position[1] / img_ratio[1] * pixel_spacing[1]; 
-        vec(2) = P.position[2] / img_ratio[2] * pixel_spacing[2];
-        vec(3) = 1;
-
-		//std::array<double, 3> disp = deformationField[pos_z][pos_y][pos_x];   
-		std::array<double, 3> disp = deformationField[pos_x][pos_y][pos_z];  
-
-		float dx_sim = disp[0]*img_ratio[0];
-		float dy_sim = disp[1]*img_ratio[1];
-		float dz_sim = disp[2]*img_ratio[2];
-
-		tar_SimSpace(0) = P.position[0] + dx_sim;
-		tar_SimSpace(1) = P.position[1] + dy_sim;
-		tar_SimSpace(2) = P.position[2] + dz_sim; 
-		
-		new_vec(0) = vec(0) + dx_sim / img_ratio[0] * pixel_spacing[0];
-		new_vec(1) = vec(1) + dy_sim / img_ratio[1] * pixel_spacing[1]; 
-		new_vec(2) = vec(2) + dz_sim / img_ratio[2] * pixel_spacing[2];
-
-        P.target_position[0] = new_vec(0) * img_ratio[0] / pixel_spacing[0];
-        P.target_position[1] = new_vec(1) * img_ratio[1] / pixel_spacing[1]; 
-        P.target_position[2] = new_vec(2) * img_ratio[2] / pixel_spacing[2];
-		
-	}
-	cout << "done particle loop" << endl;
+        P.target_position[0] = P.position[0] + dx_sim;
+        P.target_position[1] = P.position[1] + dy_sim;
+        P.target_position[2] = P.position[2] + dz_sim;
+    }
+    cout << "Particle positions updated." << endl;
 }
+
 
 //3次元変位
 //csvから各質点の目標位置を計算する

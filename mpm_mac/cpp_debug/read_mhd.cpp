@@ -21,7 +21,7 @@ int main() {
             height, std::vector<std::array<double, 3>>(width)));
 
     // RAWバイナリファイルを読み込む
-    std::ifstream file("/Users/lelab/Downloads/exam/patient2/debug/registration/deformationField_3D.raw", std::ios::binary);
+    std::ifstream file("/Users/lelab/Downloads/exam/patient/debug/registration/deformationField_3D.raw", std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file!" << std::endl;
         return 1;
